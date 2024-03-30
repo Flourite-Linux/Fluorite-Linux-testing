@@ -1,0 +1,47 @@
+name: Build and Release ISO
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_release_iso:
+    runs-on: ubuntu-latest
+    container: archlinux/base
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: |
+          pacman -Sy --noconfirm archiso
+          pacman -Sy --noconfirm sudo
+
+      - name: Build ISO
+        run: |
+          sudo mkarchiso -v -p releng -L "Arch Linux" archlive
+          cp out/*.iso archlinux.iso
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      - name: Upload ISO to Release
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./archlinux.iso
+          asset_name: archlinux.iso
+          asset_content_type: application/iso
