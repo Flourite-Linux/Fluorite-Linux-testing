@@ -15,8 +15,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pacman -Sy --noconfirm archiso
-          pacman -Sy --noconfirm sudo
+          sudo apt install archiso
 
       - name: Build ISO
         run: |
