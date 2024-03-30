@@ -8,7 +8,6 @@ on:
 jobs:
   build_and_release_iso:
     runs-on: ubuntu-latest
-    container: archlinux/base
 
     steps:
       - name: Checkout Repository
